@@ -28,7 +28,11 @@ export async function api_is_council_member(id) {
 }
 
 export async function api_is_observer(id) {
-    return (await api_get_user(id)).roles.includes("observer");
+    try {
+        return (await api_get_user(id)).roles.includes("observer");
+    } catch {
+        return false;
+    }
 }
 
 export async function api_get_users() {
