@@ -1,5 +1,14 @@
 import { ApplicationCommandType, ComponentType } from "discord.js";
 import db from "../db.js";
+import {
+    FEEDBACK,
+    HUB,
+    QUICK_GUIDE,
+    TCN_DIRECTORY,
+    TOUR,
+    UPLOAD,
+    USER,
+} from "../lib/emoji.js";
 
 export const command = {
     type: ApplicationCommandType.ChatInput,
@@ -10,7 +19,7 @@ export const command = {
 };
 
 export async function execute(cmd) {
-    const entry = await db("times").findOne();
+    const entry = await db("times").findOne({});
     const times = entry?.times ?? 0;
 
     await cmd.channel.send({
@@ -38,42 +47,41 @@ export async function execute(cmd) {
                             {
                                 label: "Tour",
                                 value: "tour",
-                                emoji: "<:tour:1041125279843745792>",
+                                emoji: TOUR,
                                 description:
                                     "get a tour of HQ and the Akasha System",
                             },
                             {
-                                label: "TCN HQ Directory",
-                                value: "hq-directory",
-                                emoji: "<:hq_directory:1041123361117450343>",
+                                label: "Quick Guide",
+                                value: "quick-guide",
+                                emoji: QUICK_GUIDE,
                                 description:
-                                    "HQ directory and navigation guide",
+                                    "quick guide for setup of TCN features",
                             },
                             {
-                                label: "TCN Resources Directory",
+                                label: "TCN Directory",
                                 value: "tcn-directory",
-                                emoji: "<:tcn_directory:1041125577870032987>",
-                                description:
-                                    "TCN directory (everything outside of HQ)",
+                                emoji: TCN_DIRECTORY,
+                                description: "TCN directory of resources",
                             },
                             {
                                 label: "Server Info",
                                 value: "server-info",
-                                emoji: "<:hub:1041090995644797028>",
+                                emoji: HUB,
                                 description:
                                     "view information for a TCN server",
                             },
                             {
                                 label: "User Info",
                                 value: "user-info",
-                                emoji: "<:user:1041091822979666010>",
+                                emoji: USER,
                                 description:
                                     "view information/documents for a user",
                             },
                             {
                                 label: "Upload A Document",
                                 value: "upload",
-                                emoji: "<:upload:1041092139016261682>",
+                                emoji: UPLOAD,
                                 description:
                                     "add a document to the Akasha System",
                             },

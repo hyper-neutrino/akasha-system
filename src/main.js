@@ -104,11 +104,7 @@ client.on("interactionCreate", async (interaction) => {
 
             let handle;
 
-            try {
-                ({ default: handle } = await import(`./components/${key}.js`));
-            } catch {
-                return;
-            }
+            ({ default: handle } = await import(`./components/${key}.js`));
 
             if (handle) {
                 try {
@@ -140,9 +136,7 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
     if (message.author.id == client.user.id) return;
-    if (!config.channels.includes(message.channelId)) return;
-
-    await message.delete();
+    if (message.channelId == config.terminal) await message.delete();
 });
 
 await client.login(config.discord_token);

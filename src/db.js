@@ -6,7 +6,7 @@ await client.connect();
 
 const db = client.db();
 
-const f = db.collection;
-f.bind(db);
+let f = db.collection;
+f = f.bind(db);
 
 export default f;
