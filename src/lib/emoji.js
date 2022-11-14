@@ -45,3 +45,11 @@ export const INAZUMA = "<:inazuma:1026030856420204584>";
 export const SUMERU = "<:sumeru:1026030854788616302>";
 export const SNEZHNAYA = "<:other_region:1026031780039499826>";
 export const OTHER_REGION = "<:other_region:1026031780039499826>";
+
+export const NUMBERS = [
+    "<:doc_1:1041728642620866661>",
+    "<:doc_2:1041728664016015440>",
+    "<:doc_3:1041728691333513216>",
+    "<:doc_4:1041728710660857877>",
+    "<:doc_5:1041728727748452373>",
+];

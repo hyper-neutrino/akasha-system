@@ -96,6 +96,9 @@ client.on("interactionCreate", async (interaction) => {
                             color: Colors.Red,
                         },
                     ],
+                    components: [],
+                    files: [],
+                    content: null,
                     ephemeral: true,
                 });
 
@@ -148,6 +151,9 @@ client.on("interactionCreate", async (interaction) => {
                                 color: Colors.Red,
                             },
                         ],
+                        components: [],
+                        files: [],
+                        content: null,
                         ephemeral: true,
                     });
 

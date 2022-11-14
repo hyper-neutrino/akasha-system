@@ -1,5 +1,12 @@
 import { ButtonStyle, Colors, ComponentType } from "discord.js";
 import db from "../db.js";
+import {
+    FIRST_PAGE,
+    LAST_PAGE,
+    NEXT_PAGE,
+    NUMBERS,
+    PREV_PAGE,
+} from "../lib/emoji.js";
 
 const fail = {
     embeds: [
@@ -12,8 +19,11 @@ const fail = {
     ],
 };
 
-export default async function (cmd, id) {
-    await cmd.deferReply({ ephemeral: true });
+export default async function (cmd, id, page) {
+    if (page) await cmd.deferUpdate();
+    else await cmd.deferReply({ ephemeral: true });
+
+    page = parseInt(page || "0");
 
     const documents = await db("documents")
         .find({ users: { $in: [id] } })
@@ -33,47 +43,81 @@ export default async function (cmd, id) {
 
     documents.sort((x, y) => x.id - y.id);
 
-    const messages = documents.map((doc) => ({
+    const pages = Math.ceil(documents.length / 5);
+    page = Math.min(page, pages - 1);
+
+    const items = documents.slice(page * 5, page * 5 + 5);
+
+    let name;
+
+    try {
+        name = (await cmd.client.users.fetch(id)).tag;
+    } catch {
+        name = `Unknown User [${id}]`;
+    }
+
+    return {
         embeds: [
             {
-                title: doc.title,
-                description: `${doc.description}\n\nID: \`${
-                    doc.id
-                }\`. Uploaded ${
-                    doc.anon ? "anonymously" : `by <@${doc.uploader}>`
-                }.`,
+                title: `**Documents for ${name}**`,
                 color: 0x2d3136,
+                fields: items.map((doc) => ({
+                    name: doc.title,
+                    value: `${doc.description}\n\nUploaded ${
+                        doc.anon ? "anonymously" : `by <@${doc.uploader}>`
+                    }`,
+                })),
+                footer:
+                    pages > 1 ? { text: `Page ${page + 1} / ${pages}` } : {},
             },
         ],
         components: [
             {
                 type: ComponentType.ActionRow,
-                components: [
-                    {
-                        type: ComponentType.Button,
-                        style: ButtonStyle.Link,
-                        label: "View Document",
-                        url: doc.link,
-                    },
-                ],
+                components: items.map((doc, index) => ({
+                    type: ComponentType.Button,
+                    style: ButtonStyle.Link,
+                    emoji: NUMBERS[index],
+                    url: doc.link,
+                })),
             },
+            ...(pages > 1
+                ? [
+                      {
+                          type: ComponentType.ActionRow,
+                          components: [
+                              {
+                                  type: ComponentType.Button,
+                                  style: ButtonStyle.Secondary,
+                                  custom_id: `::documents:${id}:0:a`,
+                                  emoji: FIRST_PAGE,
+                              },
+                              {
+                                  type: ComponentType.Button,
+                                  style: ButtonStyle.Secondary,
+                                  custom_id: `::documents:${id}:${
+                                      (page + pages - 1) % pages
+                                  }:b`,
+                                  emoji: PREV_PAGE,
+                              },
+                              {
+                                  type: ComponentType.Button,
+                                  style: ButtonStyle.Secondary,
+                                  custom_id: `::documents:${id}:${
+                                      (page + 1) % pages
+                                  }:c`,
+                                  emoji: NEXT_PAGE,
+                              },
+                              {
+                                  type: ComponentType.Button,
+                                  style: ButtonStyle.Secondary,
+                                  custom_id: `::documents:${id}:${pages - 1}:d`,
+                                  emoji: LAST_PAGE,
+                              },
+                          ],
+                      },
+                  ]
+                : []),
         ],
-        ephemeral: true,
-    }));
-
-    try {
-        await cmd.editReply(messages.shift());
-    } catch (error) {
-        console.error(error);
-        await cmd.editReply(fail);
-    }
-
-    for (const message of messages) {
-        try {
-            await cmd.followUp(message);
-        } catch (error) {
-            console.error(error);
-            await cmd.followUp(fail);
-        }
-    }
+    };
 }
