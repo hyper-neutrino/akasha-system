@@ -22,7 +22,6 @@ export const SYNC = "<:sync:1041250688241520740>";
 export const DOCUMENT = "<:document:1041484573579677807>";
 export const EDIT_DOCUMENT = "<:edit_document:1041499518413324348>";
 export const DELETE = "<:delete:1041536277276786718>";
-export const SUMMARY = "<:summary:1041796376754929807>";
 
 export const PYRO = "<:pyro:1021232648351387668>";
 export const HYDRO = "<:hydro:1021232713149190264>";
