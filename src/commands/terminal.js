@@ -1,7 +1,6 @@
 import { ApplicationCommandType, ComponentType } from "discord.js";
 import db from "../db.js";
 import {
-    FEEDBACK,
     HUB,
     QUICK_GUIDE,
     TCN_DIRECTORY,
