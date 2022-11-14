@@ -77,6 +77,20 @@ export const command = {
                 },
                 {
                     type: ApplicationCommandOptionType.Subcommand,
+                    name: "reveal",
+                    description:
+                        "reveal the uploader of a document (observer only)",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.Integer,
+                            name: "id",
+                            description: "the document's ID",
+                            required: true,
+                        },
+                    ],
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
                     name: "dump",
                     description: "dump a full list of all documents",
                 },
@@ -258,6 +272,53 @@ export async function execute(cmd) {
                     },
                 ],
             };
+        } else if (sub == "reveal") {
+            await cmd.deferReply({ ephemeral: true });
+
+            const doc = await db("documents").findOne({
+                id: cmd.options.getInteger("id"),
+            });
+
+            if (!doc) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Document Not Found**",
+                            description: "No document was found with this ID.",
+                            color: Colors.Red,
+                        },
+                    ],
+                };
+            }
+
+            if (
+                doc.anon &&
+                !(
+                    doc.uploader == cmd.user.id ||
+                    (await api_is_observer(cmd.user.id))
+                )
+            ) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Insufficient Permissions**",
+                            description:
+                                "Your credentials do not permit you to reveal the uploader of an anonymous document that was not written by you.",
+                            color: Colors.Red,
+                        },
+                    ],
+                };
+            }
+
+            return {
+                embeds: [
+                    {
+                        title: "**Document Uploader**",
+                        description: `This document was uploaded by <@${doc.uploader}>. This is not necessarily the author of the document itself.`,
+                        color: 0x2d3136,
+                    },
+                ],
+            };
         } else if (sub == "dump") {
             return {
                 files: [
@@ -272,8 +333,12 @@ export async function execute(cmd) {
                                             doc.title
                                         }\n> ${doc.link}\n${
                                             doc.description
-                                        }\n\nUsers: ${doc.users.join(", ")}\nUploaded ${
-                                            doc.anon ? "anonymously" : `by ${doc.uploader}`
+                                        }\n\nUsers: ${doc.users.join(
+                                            ", "
+                                        )}\nUploaded ${
+                                            doc.anon
+                                                ? "anonymously"
+                                                : `by ${doc.uploader}`
                                         }.`
                                 )
                                 .join("\n\n"),
