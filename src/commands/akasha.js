@@ -293,10 +293,8 @@ export async function execute(cmd) {
 
             if (
                 doc.anon &&
-                !(
-                    doc.uploader == cmd.user.id ||
-                    (await api_is_observer(cmd.user.id))
-                )
+                doc.uploader != cmd.user.id &&
+                !(await api_is_observer(cmd.user.id))
             ) {
                 return {
                     embeds: [
