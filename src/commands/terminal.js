@@ -3,7 +3,6 @@ import db from "../db.js";
 import {
     HUB,
     QUICK_GUIDE,
-    SEARCH,
     TCN_DIRECTORY,
     TOUR,
     UPLOAD,

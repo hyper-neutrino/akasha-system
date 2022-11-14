@@ -9,7 +9,6 @@ import {
 import fs from "fs";
 import config from "./config.js";
 import db from "./db.js";
-import { api_get_servers, api_get_users } from "./lib/api.js";
 import { is_string, respond } from "./utils.js";
 
 process.on("uncaughtException", (error) => console.error(error));
