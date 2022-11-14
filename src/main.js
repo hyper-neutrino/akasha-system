@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import fs from "fs";
 import config from "./config.js";
+import db from "./db.js";
 import { is_string, respond } from "./utils.js";
 
 process.on("uncaughtException", (error) => console.error(error));
@@ -48,6 +49,28 @@ client.once("ready", async () => {
     }
 
     console.log("The Akasha System is online.");
+});
+
+client.on("guildMemberAdd", async (member) => {
+    const channel = await client.channels.fetch(config.welcome);
+
+    if (member.user.bot) {
+        const entry = await db("bots").findOne({ user: member.id });
+
+        if (entry) {
+            await channel.send(
+                `Hello, ${member}. You are not recognized by the Akasha System yet. Observers - run **/akasha bot edit** to provide public information about the bot if needed.`
+            );
+        } else {
+            await channel.send(
+                `Hello, ${member}. You are already recognized by the Akasha System:\n\n${entry.body}\n\nObservers - run **/akasha bot edit** to edit this information.`
+            );
+        }
+    } else {
+        await channel.send(
+            `Welcome to the TCN HQ, ${member}! To get started, please read <#809970922701979678> and pick up some roles in <#830643335277707294>. You can find a full tour using **/tour** or in <#${config.terminal}>, where you can also find a step-by-step quick guide. Please do not hesitate to ask if you have any questions, need any help familiarizing yourself with HQ, or need any assistance with setting up your server for the TCN!`
+        );
+    }
 });
 
 client.on("interactionCreate", async (interaction) => {
