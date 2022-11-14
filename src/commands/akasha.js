@@ -272,7 +272,9 @@ export async function execute(cmd) {
                                             doc.title
                                         }\n> ${doc.link}\n${
                                             doc.description
-                                        }\n\nUsers: ${doc.users.join(", ")}`
+                                        }\n\nUsers: ${doc.users.join(", ")}\nUploaded ${
+                                            doc.anon ? "anonymously" : `by ${doc.uploader}`
+                                        }.`
                                 )
                                 .join("\n\n"),
                             "utf-8"
