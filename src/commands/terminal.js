@@ -3,6 +3,7 @@ import db from "../db.js";
 import {
     HUB,
     QUICK_GUIDE,
+    SUMMARY,
     TCN_DIRECTORY,
     TOUR,
     UPLOAD,
@@ -63,6 +64,12 @@ export async function execute(cmd) {
                                 emoji: TCN_DIRECTORY,
                                 description: "TCN directory of resources",
                             },
+                            // {
+                            //     label: "Summary",
+                            //     value: "summary",
+                            //     emoji: SUMMARY,
+                            //     description: "view a summary of current events",
+                            // },
                             {
                                 label: "Server Info",
                                 value: "server-info",
