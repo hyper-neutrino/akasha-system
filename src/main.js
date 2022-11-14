@@ -59,11 +59,11 @@ client.on("guildMemberAdd", async (member) => {
 
         if (entry) {
             await channel.send(
-                `Hello, ${member}. You are not recognized by the Akasha System yet. Observers - run **/akasha bot edit** to provide public information about the bot if needed.`
+                `Hello, ${member}. You are already recognized by the Akasha System:\n\n${entry.body}\n\nObservers - run **/akasha bot edit** to edit this information.`
             );
         } else {
             await channel.send(
-                `Hello, ${member}. You are already recognized by the Akasha System:\n\n${entry.body}\n\nObservers - run **/akasha bot edit** to edit this information.`
+                `Hello, ${member}. You are not recognized by the Akasha System yet. Observers - run **/akasha bot edit** to provide public information about the bot if needed.`
             );
         }
     } else {
