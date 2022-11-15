@@ -259,7 +259,7 @@ export const pages = [
         label: "Webhooks and Embeds",
         emoji: WEBHOOK,
         description: "webhook and embed guide, tips, and tricks",
-        msesage: {
+        message: {
             embeds: [
                 {
                     title: "**Webhooks and Embeds**",
