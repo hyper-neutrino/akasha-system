@@ -354,6 +354,80 @@ export const pages = [
             components: webhooks_subpage,
         },
     },
+    {
+        hide: true,
+        id: "webhooks/technical",
+        message: {
+            embeds: [
+                {
+                    title: "**Webhooks and Embeds**: Webhook Technical Details",
+                    description:
+                        "A webhook is essentially an entity that allows anything to send a message to the designated channel by making a request to the URL. These URLs are part of Discord's REST API. If you are not familiar with REST APIs or the different types of requests (GET, POST, etc.), this section may not make too much sense to you.\n_ _\n_ _",
+                    color: 0x2d3136,
+                    fields: [
+                        {
+                            name: "**Sending Messages**",
+                            value: "To send a message via a webhook, issue a **POST** request to the URL with the message data in the body. Most embed creation services like Discohook have a JSON Editor which allows you to copy the JSON data of your message, which is what you will send.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Editing Messages**",
+                            value: "To edit a webhook message, issue a **PATCH** request to `[webhook URL]/messages/[message ID]` with the new message content.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Deleting Messages**",
+                            value: "To delete a webhook message, issue a **DELETE** request to `[webhook URL]/messages/[message ID]`. This does not take any body and will return a `204 No Content` if it succeeds.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Using Threads**",
+                            value: "To send, edit, or delete a message in a thread or forum post, use the query argument `?thread_id=[thread/post ID]`. For example, a **POST** to `[webhook URL]?thread_id=[thread ID]` will send the message to that thread instead of the base channel.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Forums**",
+                            value: "Webhooks can also create new forum posts by specifying `thread_name` in the body. This creates a new post with the specified name. Note that this is **only** available for forum channels; webhooks cannot create threads in regular text channels. More information about this is available in the __Forums__ page below.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Modifying the Webhook**",
+                            value: "To modify the webhook itself, issue a **PATCH** request to the URL with the new `name` and/or `avatar` in the body. You cannot change the channel of a webhook in this manner.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Deleting the Webhook**",
+                            value: "You can use the webhook to delete the webhook by issuing a **DELETE** request to the URL.",
+                        },
+                    ],
+                },
+            ],
+            components: webhooks_subpage,
+        },
+    },
+    {
+        hide: true,
+        id: "webhooks/forums",
+        message: {
+            embeds: [
+                {
+                    title: "**Webhooks and Embeds**: Forum Webhooks",
+                    description:
+                        "Forums are different from regular text channels in that you cannot post a message to the forum itself, only to posts. Webhooks in forums, therefore, must follow this rule as well. In forums, webhooks are able to create new threads (posts) (though not in regular text channels). To do this, you just need to specify the `thread_name` attribute in the message data; however, Discohook does not yet support this. You may also add `?thread_id=...` in the URL itself to post to an existing thread (which works in plain text channels too); however, Discohook considers these links invalid and also does not support this.\n_ _\n_ _",
+                    color: 0x2d3136,
+                    fields: [
+                        {
+                            name: "**Alternative #1**: embeds.leaf.moe",
+                            value: "https://embeds.leaf.moe/ supports the latter option to post into an existing thread. The advantage is that it is a very clean interface and makes it easy to send messages into threads. The disadvantage is that it uses Markdown format whereas other services use JSON as the export format, so you will not be able to easily move between the two if you have existing embeds.\n_ _\n_ _",
+                        },
+                        {
+                            name: "**Alternative #2**: Doing it Manually",
+                            value: 'You can issue requests to webhook URLs directly. This can be somewhat complicated. You can use an online REST API client like [this one](https://www.webtools.services/online-rest-api-client). Click **GET** and set the request type to **POST**. Paste your webhook URL. Underneath, click __Body__, change the type to __raw__, select __JSON__ in the dropdown, and paste your message JSON (most services, including Discohook, have a JSON editor somewhere that lets you copy-paste the JSON data).\n\nTo create a new post, add the `thread_name` parameter to the body itself. Right after the initial `{` in your JSON, type `"thread_name": "...",` and put the name you want there. Make sure you are following that exact format. When you click **Send**, a new forum post should appear.\n\nTo post to an existing thread, add `?thread_id=...` after the webhook URL itself. When you click **Send**, the message should appear in the targeted thread.\n\nYou might also want to look at the __Webhook Technical Details__ page below.\n_ _\n_ _',
+                        },
+                        {
+                            name: "**For Developers**",
+                            value: "If you use discord.js, you can specify the `threadId` or `threadName` when calling `Webhook#send`. If you are issuing requests programmatically, just remember that `thread_id` is a query argument and `thread_name` is part of the body itself (to help remember this, the thread ID is part of the location and not the data, so it goes with the webhook URL which is the location, and the name to assign the new post is part of the data being sent itself).\n\nUsing this, you can also have Google Forms responses be sent to a forum, which can be useful for things like staff applications or partnership requests.",
+                        },
+                    ],
+                },
+            ],
+            components: webhooks_subpage,
+        },
+    },
 ];
 
 export const home = {

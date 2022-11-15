@@ -43,6 +43,10 @@ export async function api_get_servers() {
     return await api("/guilds");
 }
 
+export async function api_get_server(id) {
+    return await api("/guilds", id);
+}
+
 export async function api_get_observers() {
     return (await api_get_users()).filter((user) =>
         user.roles.includes("observer")

@@ -1,5 +1,6 @@
 import { ButtonStyle, Colors, ComponentType } from "discord.js";
 import db from "../db.js";
+import { api_get_server } from "../lib/api.js";
 import {
     FIRST_PAGE,
     LAST_PAGE,
@@ -26,7 +27,7 @@ export default async function (cmd, id, page) {
     page = parseInt(page || "0");
 
     const documents = await db("documents")
-        .find({ users: { $in: [id] } })
+        .find({ $or: [{ users: { $in: [id] } }, { servers: { $in: [id] } }] })
         .toArray();
 
     if (documents.length == 0) {
@@ -34,7 +35,8 @@ export default async function (cmd, id, page) {
             embeds: [
                 {
                     title: "**No Documents Found**",
-                    description: "No documents were found for this user.",
+                    description:
+                        "No documents were found for this user/server.",
                     color: Colors.Red,
                 },
             ],
@@ -53,7 +55,11 @@ export default async function (cmd, id, page) {
     try {
         name = (await cmd.client.users.fetch(id)).tag;
     } catch {
-        name = `Unknown User [${id}]`;
+        try {
+            name = (await api_get_server(id)).name;
+        } catch {
+            name = `[${id}]`;
+        }
     }
 
     return {

@@ -6,11 +6,13 @@ import autoinc from "../lib/autoinc.js";
 import { UPLOAD } from "../lib/emoji.js";
 import { upload_cache_save } from "../lib/upload-cache.js";
 
+const ID_LIST = /(^$|^\s*(\d{17,20}\s+)*\d{17,20}\s*$)/;
+
 export default async function (modal, id, anon) {
     await modal.deferReply({ ephemeral: true });
     const data = {};
 
-    for (const key of ["ids", "link", "title", "description"]) {
+    for (const key of ["ids", "servers", "link", "title", "description"]) {
         data[key] = modal.fields.getTextInputValue(key);
     }
 
@@ -42,14 +44,23 @@ export default async function (modal, id, anon) {
         };
     };
 
-    if (!data.ids.match(/\s*(\d+\s+)*\d+\s*/)) {
+    if (!data.ids.match(ID_LIST) || !data.servers.match(ID_LIST)) {
         return retry(
             "**Invalid ID List**",
-            "The ID list should consist of whitespace-separated user IDs. You have 15 minutes to click below to try again."
+            "The ID lists should consist of whitespace-separated user/server IDs. You have 15 minutes to click below to try again."
         );
     }
 
-    data.users = data.ids.trim().split(/\s+/);
+    data.users = data.ids
+        .trim()
+        .split(/\s+/)
+        .filter((x) => x);
+
+    data.servers = data.servers
+        .trim()
+        .split(/\s+/)
+        .filter((x) => x);
+
     let users;
 
     try {
@@ -97,26 +108,42 @@ export default async function (modal, id, anon) {
                 await channel.send({
                     content:
                         "**Document uploaded. Check below for information.**\n_ _\n_ _",
-                    files: [
+                    embeds: [
                         {
-                            name: "data.md",
-                            attachment: Buffer.from(
-                                `# Document ${data.id}\n\n**${
-                                    data.title
-                                }** uploaded ${
-                                    data.anon
-                                        ? "anonymously"
-                                        : `by ${modal.user.tag}`
-                                }. This document involves the following user(s):\n${users
-                                    .map(
-                                        (user) =>
-                                            `- ${user.tag} (\`${user.id}\`)`
-                                    )
-                                    .join("\n")}\n\n## Description\n\n${
-                                    data.description
-                                }`,
-                                "utf-8"
+                            title: `**Document ${data.id}**: ${data.title}`.substring(
+                                0,
+                                256
                             ),
+                            description: data.description,
+                            color: 0x2d3136,
+                            fields: [
+                                ...(users.length > 0
+                                    ? [
+                                          {
+                                              name: "Involved User(s)",
+                                              value: users
+                                                  .slice(0, 40)
+                                                  .join("\n"),
+                                          },
+                                      ]
+                                    : []),
+                                ...(data.servers.length > 0
+                                    ? [
+                                          {
+                                              name: "Involved Server(s)",
+                                              value: data.servers
+                                                  .slice(0, 40)
+                                                  .join("\n"),
+                                          },
+                                      ]
+                                    : []),
+                                {
+                                    name: "Uploader",
+                                    value: data.anon
+                                        ? "Anonymous"
+                                        : `${modal.user}`,
+                                },
+                            ],
                         },
                     ],
                     components: [

@@ -31,8 +31,21 @@ export default async function (cmd, id, anon, key) {
                         label: "Space-separated user IDs",
                         style: TextInputStyle.Paragraph,
                         custom_id: "ids",
-                        required: true,
+                        required: false,
                         value: data?.ids,
+                    },
+                ],
+            },
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.TextInput,
+                        label: "Space-separated server IDs",
+                        style: TextInputStyle.Paragraph,
+                        custom_id: "servers",
+                        required: false,
+                        value: data?.servers,
                     },
                 ],
             },

@@ -69,7 +69,7 @@ export async function execute(cmd) {
                                 value: "server-info",
                                 emoji: HUB,
                                 description:
-                                    "view information for a TCN server",
+                                    "view information/documents for a server",
                             },
                             {
                                 label: "User Info",

@@ -56,14 +56,30 @@ export default async function (cmd) {
 
                 break;
             case "server-info":
-                data.embeds = [
-                    {
-                        title: "**Server Info**",
-                        description:
-                            "Use **/info server** on <@952079581899264060> to obtain information on TCN servers.",
-                        color: 0x2d3136,
-                    },
-                ];
+                data = null;
+
+                cmd.showModal({
+                    custom_id: "::server-info",
+                    title: "Obtain Server Information",
+                    components: [
+                        {
+                            type: ComponentType.ActionRow,
+                            components: [
+                                {
+                                    type: ComponentType.TextInput,
+                                    label: "Server ID",
+                                    style: TextInputStyle.Short,
+                                    custom_id: "id",
+                                    placeholder:
+                                        "ID (17-20 digit number), not name.",
+                                    required: true,
+                                    min_length: 17,
+                                    max_length: 20,
+                                },
+                            ],
+                        },
+                    ],
+                });
 
                 break;
             case "user-info":

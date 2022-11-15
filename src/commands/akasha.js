@@ -39,6 +39,26 @@ export const command = {
         },
         {
             type: ApplicationCommandOptionType.SubcommandGroup,
+            name: "server",
+            description: "manage a server's stored information",
+            options: [
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "edit",
+                    description: "edit a server's info embed",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.String,
+                            name: "id",
+                            description: "the server's ID",
+                            required: true,
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            type: ApplicationCommandOptionType.SubcommandGroup,
             name: "doc",
             description: "manage a document",
             options: [
@@ -110,6 +130,20 @@ export async function execute(cmd) {
 
     if (subgroup == "bot") {
         if (sub == "edit") {
+            if (!(await api_is_observer(cmd.user.id))) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Permission Denied**",
+                            description:
+                                "Only observers may edit this information.",
+                            color: Colors.Red,
+                        },
+                    ],
+                    ephemeral: true,
+                };
+            }
+
             const bot = cmd.options.getUser("bot");
 
             if (!bot.bot) {
@@ -143,6 +177,75 @@ export async function execute(cmd) {
                                 required: true,
                                 max_length: 2048,
                                 value: entry?.body,
+                            },
+                        ],
+                    },
+                ],
+            });
+        }
+    } else if (subgroup == "server") {
+        if (sub == "edit") {
+            if (!(await api_is_observer(cmd.user.id))) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Permission Denied**",
+                            description:
+                                "Only observers may edit this information.",
+                            color: Colors.Red,
+                        },
+                    ],
+                    ephemeral: true,
+                };
+            }
+
+            const id = cmd.options.getString("id");
+
+            const entry = await db("servers").findOne({ id });
+
+            cmd.showModal({
+                custom_id: `::edit-server:${id}`,
+                title: "Edit Server Information",
+                components: [
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.TextInput,
+                                label: "Body (will be shown in server info)",
+                                style: TextInputStyle.Paragraph,
+                                custom_id: "body",
+                                required: false,
+                                max_length: 2048,
+                                value: entry?.body,
+                            },
+                        ],
+                    },
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.TextInput,
+                                label: "Important Affiliations (e.g. TCN, KNET, etc.)",
+                                style: TextInputStyle.Short,
+                                custom_id: "faction",
+                                required: false,
+                                max_length: 32,
+                                value: entry?.faction,
+                            },
+                        ],
+                    },
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.TextInput,
+                                label: "Canonical Abbreviation (e.g. TCN)",
+                                style: TextInputStyle.Paragraph,
+                                custom_id: "abbr",
+                                required: false,
+                                max_length: 8,
+                                value: entry?.abbr,
                             },
                         ],
                     },
@@ -250,6 +353,22 @@ export async function execute(cmd) {
                 };
             }
 
+            if (
+                cmd.user.id != doc.uploader &&
+                !(await api_is_observer(cmd.user.id))
+            ) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Permission Denied**",
+                            description:
+                                "Only the uploader and observers can delete documents.",
+                            color: Colors.Red,
+                        },
+                    ],
+                };
+            }
+
             return {
                 embeds: [
                     {
@@ -299,9 +418,9 @@ export async function execute(cmd) {
                 return {
                     embeds: [
                         {
-                            title: "**Insufficient Permissions**",
+                            title: "**Permission Denied**",
                             description:
-                                "Your credentials do not permit you to reveal the uploader of an anonymous document that was not written by you.",
+                                "Only observers and the uploader may reveal the uploader of an anonymous document.",
                             color: Colors.Red,
                         },
                     ],
