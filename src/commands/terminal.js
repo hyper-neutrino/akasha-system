@@ -1,6 +1,7 @@
 import { ApplicationCommandType, ComponentType } from "discord.js";
 import db from "../db.js";
 import {
+    DISCORD,
     HUB,
     QUICK_GUIDE,
     TCN_DIRECTORY,
@@ -83,6 +84,13 @@ export async function execute(cmd) {
                                 emoji: UPLOAD,
                                 description:
                                     "add a document to the Akasha System",
+                            },
+                            {
+                                label: "Discord Help",
+                                value: "discord",
+                                emoji: DISCORD,
+                                description:
+                                    "need technical help for Discord (server setup, etc.)?",
                             },
                         ],
                     },

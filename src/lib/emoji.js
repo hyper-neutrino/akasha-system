@@ -22,6 +22,17 @@ export const SYNC = "<:sync:1041250688241520740>";
 export const DOCUMENT = "<:document:1041484573579677807>";
 export const EDIT_DOCUMENT = "<:edit_document:1041499518413324348>";
 export const DELETE = "<:delete:1041536277276786718>";
+export const DISCORD = "<:discord:1041891453003124808>";
+export const PERMISSIONS = "<:permissions:1041892449611694142>";
+export const VERIFICATION = "<:verification:1041898053734514728>";
+export const ACCESS = "<:access:1041898466173009920>";
+export const MUTE = "<:mute:1041898916100186162>";
+export const TROUBLESHOOTING = "<:troubleshooting:1041922927915962458>";
+export const FAQ = "<:faq:1041963734949707806>";
+export const ADVANCED = "<:advanced:1041964262345678848>";
+export const WEBHOOK = "<:webhook:1041964925012148315>";
+export const TECHNICAL = "<:technical:1042110965103210536>";
+export const FORUM = "<:forum:1042111442914127992>";
 
 export const PYRO = "<:pyro:1021232648351387668>";
 export const HYDRO = "<:hydro:1021232713149190264>";

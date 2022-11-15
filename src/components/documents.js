@@ -41,7 +41,7 @@ export default async function (cmd, id, page) {
         };
     }
 
-    documents.sort((x, y) => x.id - y.id);
+    documents.sort((x, y) => y.id - x.id);
 
     const pages = Math.ceil(documents.length / 5);
     page = Math.min(page, pages - 1);
