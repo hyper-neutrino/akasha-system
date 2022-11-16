@@ -415,7 +415,11 @@ export const pages = [
                             value: "https://embeds.leaf.moe/ supports the latter option to post into an existing thread. The advantage is that it is a very clean interface and makes it easy to send messages into threads. The disadvantage is that it uses Markdown format whereas other services use JSON as the export format, so you will not be able to easily move between the two if you have existing embeds.\n_ _\n_ _",
                         },
                         {
-                            name: "**Alternative #2**: Doing it Manually",
+                            name: "**Alternative #2**: hyper-neutrino.github.io/discord-webhooks/",
+                            value: "https://hyper-neutrino.github.io/discord-webhooks/ supports both options. The advantage is that it has complete features. The disadvantage is that it does not come with a structured editor or previewer. It was created purely to support the full extent of webhook send/edit features. This is mostly so that if you really need to create forum posts with a webhook, you don't have to resort to alternative #3, which is quite tedious and requires some technical experience to understand.",
+                        },
+                        {
+                            name: "**Alternative #3**: Doing it Manually",
                             value: 'You can issue requests to webhook URLs directly. This can be somewhat complicated. You can use an online REST API client like [this one](https://www.webtools.services/online-rest-api-client). Click **GET** and set the request type to **POST**. Paste your webhook URL. Underneath, click __Body__, change the type to __raw__, select __JSON__ in the dropdown, and paste your message JSON (most services, including Discohook, have a JSON editor somewhere that lets you copy-paste the JSON data).\n\nTo create a new post, add the `thread_name` parameter to the body itself. Right after the initial `{` in your JSON, type `"thread_name": "...",` and put the name you want there. Make sure you are following that exact format. When you click **Send**, a new forum post should appear.\n\nTo post to an existing thread, add `?thread_id=...` after the webhook URL itself. When you click **Send**, the message should appear in the targeted thread.\n\nYou might also want to look at the __Webhook Technical Details__ page below.\n_ _\n_ _',
                         },
                         {
