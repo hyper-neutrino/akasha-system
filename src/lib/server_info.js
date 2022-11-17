@@ -28,7 +28,7 @@ export default async function (ctx, id) {
         description += "\n";
     }
 
-    if (entry.body) description += entry.body;
+    if (entry?.body) description += entry.body;
 
     const documents = (await api_is_council_member(ctx.user.id))
         ? await db("documents").countDocuments({ servers: { $in: [id] } })
