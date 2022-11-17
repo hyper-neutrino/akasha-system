@@ -77,7 +77,7 @@ export default async function (ctx, id) {
                           {
                               type: ComponentType.Button,
                               style: ButtonStyle.Secondary,
-                              custom_id: `::documents:${id}`,
+                              custom_id: `::documents:about:${id}`,
                               emoji: DOCUMENT,
                               label: "View Documents",
                           },

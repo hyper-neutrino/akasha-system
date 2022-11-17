@@ -28,10 +28,11 @@ export default async function (cmd, id, anon, key) {
                 components: [
                     {
                         type: ComponentType.TextInput,
-                        label: "Space-separated user IDs",
+                        label: "Author IDs",
                         style: TextInputStyle.Paragraph,
-                        custom_id: "ids",
+                        custom_id: "authors",
                         required: false,
+                        placeholder: "space-separated",
                         value: data?.ids,
                     },
                 ],
@@ -41,10 +42,25 @@ export default async function (cmd, id, anon, key) {
                 components: [
                     {
                         type: ComponentType.TextInput,
-                        label: "Space-separated server IDs",
+                        label: "Related User IDs",
+                        style: TextInputStyle.Paragraph,
+                        custom_id: "ids",
+                        required: false,
+                        placeholder: "space-separated",
+                        value: data?.ids,
+                    },
+                ],
+            },
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.TextInput,
+                        label: "Related Server IDs",
                         style: TextInputStyle.Paragraph,
                         custom_id: "servers",
                         required: false,
+                        placeholder: "space-separated",
                         value: data?.servers,
                     },
                 ],

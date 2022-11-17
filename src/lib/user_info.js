@@ -70,8 +70,18 @@ export default async function (ctx, user) {
         }
     }
 
-    const documents = (await api_is_council_member(ctx.user.id))
+    const council = await api_is_council_member(ctx.user.id);
+
+    const documents = council
         ? await db("documents").countDocuments({ users: { $in: [user.id] } })
+        : null;
+
+    const uploaded = council
+        ? await db("documents").countDocuments({ uploader: user.id })
+        : null;
+
+    const authored = council
+        ? await db("documents").countDocuments({ authors: { $in: [user.id] } })
         : null;
 
     return {
@@ -87,27 +97,46 @@ export default async function (ctx, user) {
                             documents !== null
                                 ? `This user has ${documents} document${
                                       documents == 1 ? "" : "s"
-                                  } written about them. Use the **Upload A Document** option in an Akasha Terminal to add documents.`
+                                  } written about them, has uploaded ${uploaded} document${
+                                      uploaded == 1 ? "" : "s"
+                                  }, and has authored ${authored} document${
+                                      authored == 1 ? "" : "s"
+                                  }. Use the **Upload A Document** option in an Akasha Terminal to add documents.`
                                 : "This is privileged information which you do not have permission to access.",
                     },
                 ],
             },
         ],
-        components: documents
-            ? [
-                  {
-                      type: ComponentType.ActionRow,
-                      components: [
-                          {
-                              type: ComponentType.Button,
-                              style: ButtonStyle.Secondary,
-                              custom_id: `::documents:${user.id}`,
-                              emoji: DOCUMENT,
-                              label: "View Documents",
-                          },
-                      ],
-                  },
-              ]
-            : [],
+        components: [
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Secondary,
+                        custom_id: `::documents:about:${user.id}`,
+                        emoji: DOCUMENT,
+                        label: "View Documents",
+                        disabled: !documents,
+                    },
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Secondary,
+                        custom_id: `::documents:uploaded:${user.id}`,
+                        emoji: DOCUMENT,
+                        label: "View Uploaded Documents",
+                        disabled: !uploaded,
+                    },
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Secondary,
+                        custom_id: `::documents:authored:${user.id}`,
+                        emoji: DOCUMENT,
+                        label: "View Authored Documents",
+                        disabled: !authored,
+                    },
+                ],
+            },
+        ],
     };
 }

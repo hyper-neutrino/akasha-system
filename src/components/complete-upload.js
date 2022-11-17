@@ -12,7 +12,14 @@ export default async function (modal, id, anon) {
     await modal.deferReply({ ephemeral: true });
     const data = {};
 
-    for (const key of ["ids", "servers", "link", "title", "description"]) {
+    for (const key of [
+        "authors",
+        "ids",
+        "servers",
+        "link",
+        "title",
+        "description",
+    ]) {
         data[key] = modal.fields.getTextInputValue(key);
     }
 
@@ -44,12 +51,21 @@ export default async function (modal, id, anon) {
         };
     };
 
-    if (!data.ids.match(ID_LIST) || !data.servers.match(ID_LIST)) {
+    if (
+        !data.authors.match(ID_LIST) ||
+        !data.ids.match(ID_LIST) ||
+        !data.servers.match(ID_LIST)
+    ) {
         return retry(
             "**Invalid ID List**",
             "The ID lists should consist of whitespace-separated user/server IDs. You have 15 minutes to click below to try again."
         );
     }
+
+    data.authors = data.authors
+        .trim()
+        .split(/\s+/)
+        .filter((x) => x);
 
     data.users = data.ids
         .trim()
@@ -67,6 +83,8 @@ export default async function (modal, id, anon) {
         users = await Promise.all(
             data.users.map((x) => modal.client.users.fetch(x))
         );
+
+        await Promise.all(data.authors.map((x) => modal.client.users.fetch(x)));
     } catch {
         return retry(
             "**Invalid ID List**",

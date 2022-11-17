@@ -1,6 +1,6 @@
 import { ButtonStyle, Colors, ComponentType } from "discord.js";
 import db from "../db.js";
-import { api_get_server } from "../lib/api.js";
+import { api_get_server, api_is_observer } from "../lib/api.js";
 import {
     FIRST_PAGE,
     LAST_PAGE,
@@ -9,25 +9,33 @@ import {
     PREV_PAGE,
 } from "../lib/emoji.js";
 
-const fail = {
-    embeds: [
-        {
-            title: "**Document Failed To Send**",
-            description:
-                "A document could not be sent. This issue was logged; please contact the developer if it persists.",
-            color: Colors.Red,
-        },
-    ],
-};
-
-export default async function (cmd, id, page) {
+export default async function (cmd, mode, id, page) {
     if (page) await cmd.deferUpdate();
     else await cmd.deferReply({ ephemeral: true });
 
     page = parseInt(page || "0");
 
     const documents = await db("documents")
-        .find({ $or: [{ users: { $in: [id] } }, { servers: { $in: [id] } }] })
+        .find(
+            mode == "about"
+                ? {
+                      $or: [
+                          { users: { $in: [id] } },
+                          { servers: { $in: [id] } },
+                      ],
+                  }
+                : mode == "uploaded"
+                ? {
+                      uploaded: id,
+                      ...(cmd.user.id == id ||
+                      (await api_is_observer(cmd.user.id))
+                          ? {}
+                          : { anon: false }),
+                  }
+                : mode == "authored"
+                ? { authors: { $in: [id] } }
+                : {}
+        )
         .toArray();
 
     if (documents.length == 0) {
