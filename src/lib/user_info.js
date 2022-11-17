@@ -64,9 +64,9 @@ export default async function (ctx, user) {
 
         if (staffs.length) {
             staffs.sort();
-            description += `${description ? "Also s" : "S"}taffs ${english_list(
-                staffs
-            )}.`;
+            description += `${
+                description ? "Also s" : "S"
+            }taff in ${english_list(staffs)}.`;
         }
     }
 
