@@ -26,7 +26,7 @@ export default async function (cmd, mode, id, page) {
                   }
                 : mode == "uploaded"
                 ? {
-                      uploaded: id,
+                      uploader: id,
                       ...(cmd.user.id == id ||
                       (await api_is_observer(cmd.user.id))
                           ? {}
