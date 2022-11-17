@@ -1,0 +1,43 @@
+extends layout
+
+block header
+    b #{upload ? "Upload" : "Edit"} Document
+
+block main
+    form(method="post")
+        .row
+            .col.s12.input-field
+                textarea.materialize-textarea.white-text#authors(name="authors", placeholder="251082987360223233 923705085807190026")= doc.authors
+                label.active Authors (space-separated IDs)
+        .row
+            .col.s12.input-field
+                textarea.materialize-textarea.white-text#alt_authors(name="alt_authors", placeholder="Teyvat Collective Network\nPaimon Pals")= doc.alt_authors
+                label.active Other Authors (non-users, one per line)
+        .row
+            .col.s12.input-field
+                textarea.materialize-textarea.white-text#users(name="users", placeholder="This document will appear on these users' info panels.")= doc.users
+                label.active Related Users (space-separated IDs)
+        .row
+            .col.s12.input-field
+                textarea.materialize-textarea.white-text#servers(name="servers", placeholder="Note that these IDs will not be validated.")= doc.servers
+                label.active Related Servers (space-separated IDs)
+        .row
+            .col.s12.input-field
+                textarea.materialize-textarea.white-text#alt_related(name="alt_related", placeholder="Party 1\nParty 2")= doc.alt_related
+                label.active Related Parties (non-users/servers, one per line)
+        .row
+            .col.s12.input-field
+                input.charcount.white-text#title(required, name="title", placeholder="HyperNeutrino's bad dev skills", data-length=256, maxlength=256, value=doc.title)
+                label.active Title
+        .row
+            .col.s12.input-field
+                textarea.charcount.materialize-textarea.white-text#description(required, name="description", placeholder="This document shows why HyperNeutrino is bad at coding.", data-length=1024, maxlength=1024)= doc.description
+                label.active Description
+        .row
+            .col.s12.input-field
+                input.white-text#link(required, name="link", placeholder="This can be any link.", value=doc.link)
+                label.active Document Link
+        .row
+            .col.s12
+                +submit(upload ? "upload" : "save", upload ? "Upload" : "Save")
+                p This may take a while if you provided a lot of users; please be patient.

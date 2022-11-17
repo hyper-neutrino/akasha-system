@@ -1,31 +1,14 @@
-import {
-    ActivityType,
-    Client,
-    Colors,
-    IntentsBitField,
-    InteractionType,
-    PresenceUpdateStatus,
-} from "discord.js";
+import { Colors, InteractionType } from "discord.js";
 import fs from "fs";
 import config from "./config.js";
 import db from "./db.js";
 import { is_string, respond } from "./utils.js";
 
 import "./server/index.js";
+import { api_get_users } from "./lib/api.js";
+import client from "./client.js";
 
 process.on("uncaughtException", (error) => console.error(error));
-
-const client = new Client({
-    intents: [
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMembers,
-        IntentsBitField.Flags.GuildMessages,
-    ],
-    presence: {
-        status: PresenceUpdateStatus.Online,
-        activities: [{ type: ActivityType.Listening, name: "your inquiries" }],
-    },
-});
 
 const commands = [];
 const command_map = new Map();
@@ -50,7 +33,27 @@ client.once("ready", async () => {
         );
     }
 
-    console.log("The Akasha System is online.");
+    console.log("The Akasha System is online. Pre-loading users...");
+
+    const required = new Set();
+
+    for (const user of await api_get_users()) {
+        required.add(user.id);
+    }
+
+    for (const doc of await db("documents").find({}).toArray()) {
+        for (const user of [...(doc.authors ?? []), ...(doc.users ?? [])]) {
+            required.add(user);
+        }
+    }
+
+    for (const id of required) {
+        try {
+            await client.users.fetch(id);
+        } catch {}
+    }
+
+    console.log("Users loaded.");
 });
 
 client.on("guildMemberAdd", async (member) => {

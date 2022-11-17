@@ -6,6 +6,7 @@ import { english_list } from "../utils.js";
 import { ButtonStyle, ComponentType, TextInputStyle } from "discord.js";
 import { UPLOAD } from "../lib/emoji.js";
 import { home } from "../lib/discord_help.js";
+import config from "../config.js";
 
 export default async function (cmd) {
     try {
@@ -110,31 +111,15 @@ export default async function (cmd) {
 
                 break;
             case "upload":
-                data.embeds = [
-                    {
-                        title: "**Upload A Document**",
-                        description:
-                            "Before you proceed, make sure you have the involved user's/users' IDs and the document link. Also, make sure you have permission to publish this document to the TCN.\n\nYou will have the option to publish this document anonymously, but observers will still be able to see your name. If you want to be fully anonymous, please submit the form and context directly to the observers, fully anonymously, using the [Anonymous Feedback Form](https://forms.gle/RowJoferLg7QUKpV7).",
-                        color: 0x2d3136,
-                    },
-                ];
-
                 data.components = [
                     {
                         type: ComponentType.ActionRow,
                         components: [
                             {
                                 type: ComponentType.Button,
-                                style: ButtonStyle.Secondary,
-                                custom_id: "::upload:0:i",
-                                emoji: UPLOAD,
-                            },
-                            {
-                                type: ComponentType.Button,
-                                style: ButtonStyle.Secondary,
-                                custom_id: "::upload:0:a",
-                                emoji: UPLOAD,
-                                label: "Upload Anonymously",
+                                style: ButtonStyle.Link,
+                                label: "Upload Docs on the Dashboard",
+                                url: config.domain,
                             },
                         ],
                     },

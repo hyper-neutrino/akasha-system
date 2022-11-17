@@ -1,4 +1,14 @@
-if !user
-    meta(http-equiv="refresh", content=`0; url=${login_url}`)
-else
-    | logged in
+extends layout
+
+block header
+    b Akasha System
+
+block main
+    +link("/upload/", "upload", "Upload A Document")
+    | 
+    +link("/servers/", "hub", "Servers")
+    | 
+    +link("/users/", "account_circle", "Users")
+    | 
+    +link("/docs/", "article", "Documents")
+    | 

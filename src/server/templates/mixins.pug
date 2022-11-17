@@ -1,0 +1,11 @@
+mixin import-css(file)
+    link(rel="stylesheet", type="text/css", href=file)
+
+mixin link(url, icon, label)
+    a.waves-effect.waves-dark.btn.grey.darken-3(href=url)
+        i.left.material-icons= icon
+        != label
+
+mixin submit(icon, label)
+    button.btn.waves-effect.waves-dark#submit(type="submit", name="submit")!= label
+        i.left.material-icons= icon

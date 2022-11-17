@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Anek+Latin:wght@200;300;500&display=swap");
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+html {
+    position: relative;
+    min-height: 100vh;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-weight: 300;
+}
+
+body,
+button,
+input,
+textarea {
+    font-family: "Anek Latin", sans-serif !important;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+p {
+    font-size: 110%;
+}
+
+.top-block {
+    padding-top: 8vh;
+    padding-bottom: 8vh;
+    margin-bottom: 2vh;
+    font-size: 250%;
+}
+
+.subtext {
+    font-size: 50%;
+    font-weight: lighter;
+}
+
+textarea {
+    min-height: 4em !important;
+}

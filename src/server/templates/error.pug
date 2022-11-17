@@ -1,1 +1,9 @@
-| error
+extends layout
+
+block default
+    b Error
+    .subtext!= title
+
+block main
+    h3!= header
+    p!= description

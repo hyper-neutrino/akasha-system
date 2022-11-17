@@ -4,6 +4,7 @@ export const TCN_DIRECTORY = "<:tcn_directory:1041125577870032987>";
 export const HUB = "<:hub:1041090995644797028>";
 export const USER = "<:user:1041091822979666010>";
 export const UPLOAD = "<:upload:1041092139016261682>";
+export const DASHBOARD = "<:dashboard:1042886173758070816>";
 export const FIRST_PAGE = "<:first_page:1041201475000488017>";
 export const PREV_PAGE = "<:prev_page:1041202295934828665>";
 export const NEXT_PAGE = "<:next_page:1041202317149622292>";

@@ -1,7 +1,10 @@
-import { ApplicationCommandType, ComponentType } from "discord.js";
+import { ApplicationCommandType, ButtonStyle, ComponentType } from "discord.js";
+import config from "../config.js";
 import db from "../db.js";
 import {
+    DASHBOARD,
     DISCORD,
+    DOCUMENT,
     HUB,
     QUICK_GUIDE,
     TCN_DIRECTORY,
@@ -36,6 +39,25 @@ export async function execute(cmd) {
             },
         ],
         components: [
+            {
+                type: ComponentType.ActionRow,
+                components: [
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        emoji: DASHBOARD,
+                        label: "Dashboard",
+                        url: config.domain,
+                    },
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        emoji: DOCUMENT,
+                        label: "Documentation",
+                        url: "https://docs.google.com/document/d/19iFhBSdKUnKSfG5ma6W3alhgKRyAP5QVsOoOFcZZ3cc",
+                    },
+                ],
+            },
             {
                 type: ComponentType.ActionRow,
                 components: [
