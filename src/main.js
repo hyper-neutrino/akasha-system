@@ -11,6 +11,8 @@ import config from "./config.js";
 import db from "./db.js";
 import { is_string, respond } from "./utils.js";
 
+import "./server/index.js";
+
 process.on("uncaughtException", (error) => console.error(error));
 
 const client = new Client({
