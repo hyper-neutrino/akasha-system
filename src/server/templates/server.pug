@@ -5,6 +5,7 @@ block header
 
 block main
     if server_type == "api"
+        +link(`https://discord.gg/${server.invite}`, "login", "Join Server")
         .row
             .col.s12
                 b This server is in the TCN. 
@@ -30,6 +31,8 @@ block main
                     b Canonical Abbreviation 
                     | This server's canonical abbreviation is #{entry.abbr}. It is <b>not</b> official or exclusive, but simply most commonly what but simply most commonly what is used to refer to this server and is understood to mean this server, at least within the TCN.
     else
-        p This server does not have any additional information attached to it.
+        .row
+            .col.s12
+                p This server does not have any additional information attached to it.
     for doc of docs
         +show(doc)
