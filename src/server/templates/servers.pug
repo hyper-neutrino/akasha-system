@@ -8,16 +8,15 @@ block dependencies
 
 block main
     +link("#!", "place", "Enter ID directly", undefined, "by_id();")
+    br
     h6 TCN Servers
     p
         ul.browser-default
             for server of tcn.sort((a, b) => a.name.localeCompare(b.name))
-                li
-                    a(href=`/servers/${server.id}`) #{server.name} 
-                    span.grey-text (TCN Server)
+                li: a(href=`/servers/${server.id}`) #{server.name} 
+    br
     h6 Other servers you're in
     p
         ul.browser-default
             for server of others.sort((a, b) => a.name.localeCompare(b.name))
-                li
-                    a(href=`/servers/${server.id}`) #{server.name}
+                li: a(href=`/servers/${server.id}`) #{server.name}
