@@ -5,9 +5,9 @@ import { api_get_servers, api_get_user, api_is_council_member } from "./api.js";
 import { DOCUMENT } from "./emoji.js";
 
 export default async function (ctx, user) {
-    if (user.bot) {
-        const entry = await db("bots").findOne({ user: user.id });
+    const entry = await db("users").findOne({ user: user.id });
 
+    if (user.bot) {
         if (entry) {
             return {
                 embeds: [
@@ -67,6 +67,10 @@ export default async function (ctx, user) {
             description += `${
                 description ? "Also s" : "S"
             }taff in ${english_list(staffs)}.`;
+        }
+
+        if (entry) {
+            description += `\n\n${entry.body}`;
         }
     }
 

@@ -27,3 +27,18 @@ function update() {
     M.updateTextFields();
     $("textarea").each((_, e) => M.textareaAutoResize(e));
 }
+
+function user_by_id() {
+    let id;
+    let message = "Enter the user ID.";
+
+    do {
+        id = prompt(message);
+        if (!id) return;
+
+        message =
+            "Invalid user ID. Please enter the user ID (17-20 digit number).";
+    } while (!id.match(/\d{17,20}/));
+
+    window.location.href = `/users/${id}`;
+}

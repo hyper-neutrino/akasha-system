@@ -47,12 +47,18 @@ client.once("ready", async () => {
         }
     }
 
+    let x = 0;
+
     for (const id of required) {
         try {
-            await client.users.fetch(id);
-        } catch {}
+            const user = await client.users.fetch(id);
+            console.log(`${++x} / ${required.size}: ${user.tag}`);
+        } catch {
+            console.log(`${++x} / ${required.size} failed`);
+        }
     }
 
+    console.log();
     console.log("Users loaded.");
 });
 

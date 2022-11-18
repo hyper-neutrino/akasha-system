@@ -8,8 +8,7 @@ import {
 } from "discord.js";
 import db from "../db.js";
 import { api_is_observer } from "../lib/api.js";
-import { DELETE, EDIT_DOCUMENT } from "../lib/emoji.js";
-import { upload_cache_save } from "../lib/upload-cache.js";
+import { DELETE } from "../lib/emoji.js";
 
 export const command = {
     type: ApplicationCommandType.ChatInput,
@@ -19,18 +18,18 @@ export const command = {
     options: [
         {
             type: ApplicationCommandOptionType.SubcommandGroup,
-            name: "bot",
-            description: "manage a bot's stored information",
+            name: "user",
+            description: "manage a user's stored information",
             options: [
                 {
                     type: ApplicationCommandOptionType.Subcommand,
                     name: "edit",
-                    description: "edit a bot's info embed",
+                    description: "edit a user's info embed",
                     options: [
                         {
                             type: ApplicationCommandOptionType.User,
-                            name: "bot",
-                            description: "the bot",
+                            name: "user",
+                            description: "the user",
                             required: true,
                         },
                     ],
@@ -64,42 +63,8 @@ export const command = {
             options: [
                 {
                     type: ApplicationCommandOptionType.Subcommand,
-                    name: "edit",
-                    description: "edit a document",
-                    options: [
-                        {
-                            type: ApplicationCommandOptionType.Integer,
-                            name: "id",
-                            description: "the document's ID",
-                            required: true,
-                        },
-                        {
-                            type: ApplicationCommandOptionType.Boolean,
-                            name: "anon",
-                            description:
-                                "set this to overwrite the doc's anonymity",
-                            required: false,
-                        },
-                    ],
-                },
-                {
-                    type: ApplicationCommandOptionType.Subcommand,
                     name: "delete",
                     description: "take down a document",
-                    options: [
-                        {
-                            type: ApplicationCommandOptionType.Integer,
-                            name: "id",
-                            description: "the document's ID",
-                            required: true,
-                        },
-                    ],
-                },
-                {
-                    type: ApplicationCommandOptionType.Subcommand,
-                    name: "reveal",
-                    description:
-                        "reveal the uploader of a document (observer only)",
                     options: [
                         {
                             type: ApplicationCommandOptionType.Integer,
@@ -116,6 +81,53 @@ export const command = {
                 },
             ],
         },
+        {
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            name: "alt",
+            description: "manage linked alts",
+            options: [
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "link",
+                    description:
+                        "link an account as an alt of the main account",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.User,
+                            name: "main",
+                            description: "the main account",
+                            required: true,
+                        },
+                        {
+                            type: ApplicationCommandOptionType.User,
+                            name: "alt",
+                            description: "the alt account",
+                            required: true,
+                        },
+                    ],
+                },
+                {
+                    type: ApplicationCommandOptionType.Subcommand,
+                    name: "unlink",
+                    description:
+                        "unlink an account as an alt of the main account",
+                    options: [
+                        {
+                            type: ApplicationCommandOptionType.User,
+                            name: "main",
+                            description: "the main account",
+                            required: true,
+                        },
+                        {
+                            type: ApplicationCommandOptionType.User,
+                            name: "alt",
+                            description: "the alt account",
+                            required: true,
+                        },
+                    ],
+                },
+            ],
+        },
     ],
 };
 
@@ -128,7 +140,7 @@ export async function execute(cmd) {
 
     const sub = cmd.options.getSubcommand();
 
-    if (subgroup == "bot") {
+    if (subgroup == "user") {
         if (sub == "edit") {
             if (!(await api_is_observer(cmd.user.id))) {
                 return {
@@ -144,27 +156,13 @@ export async function execute(cmd) {
                 };
             }
 
-            const bot = cmd.options.getUser("bot");
+            const user = cmd.options.getUser("user");
 
-            if (!bot.bot) {
-                return {
-                    embeds: [
-                        {
-                            title: "**That is not a bot.**",
-                            description:
-                                "You can only edit this information for bot accounts.",
-                            color: Colors.Red,
-                        },
-                    ],
-                    ephemeral: true,
-                };
-            }
-
-            const entry = await db("bots").findOne({ user: bot.id });
+            const entry = await db("users").findOne({ user: user.id });
 
             cmd.showModal({
-                custom_id: `::edit-bot:${bot.id}`,
-                title: "Edit Bot Information",
+                custom_id: `::edit-user:${user.id}`,
+                title: "Edit User Information",
                 components: [
                     {
                         type: ComponentType.ActionRow,
@@ -253,88 +251,7 @@ export async function execute(cmd) {
             });
         }
     } else if (subgroup == "doc") {
-        if (sub == "edit") {
-            await cmd.deferReply({ ephemeral: true });
-
-            const doc = await db("documents").findOne({
-                id: cmd.options.getInteger("id"),
-            });
-
-            if (!doc) {
-                return {
-                    embeds: [
-                        {
-                            title: "**Document Not Found**",
-                            description: "No document was found with this ID.",
-                            color: Colors.Red,
-                        },
-                    ],
-                };
-            }
-
-            const anon = cmd.options.getBoolean("anon");
-
-            if (anon === false && doc.anon && cmd.user.id != doc.uploader) {
-                return {
-                    embeds: [
-                        {
-                            title: "**Cannot Remove Anonymity**",
-                            description:
-                                "You cannot remove the anonymity for a document that you did not upload.",
-                            color: Colors.Red,
-                        },
-                    ],
-                };
-            }
-
-            if (
-                cmd.user.id != doc.uploader &&
-                !(await api_is_observer(cmd.user.id))
-            ) {
-                return {
-                    embeds: [
-                        {
-                            title: "**Permission Denied**",
-                            description:
-                                "Only the uploader and observers can edit documents.",
-                            color: Colors.Red,
-                        },
-                    ],
-                };
-            }
-
-            doc.ids = doc.users.join(" ");
-            const key = upload_cache_save(doc);
-
-            return {
-                embeds: [
-                    {
-                        title: "**Editing A Document**",
-                        description: `You are about to edit document #${doc.id} titled __${doc.title}__. If you do not own this document, please make sure you do not change the intent or drastically alter any information without permission from the uploader, unless you wrote the linked document itself. Click below to open the editor.\n\nYou have 15 minutes.`,
-                        color: 0x2d3136,
-                    },
-                ],
-                components: [
-                    {
-                        type: ComponentType.ActionRow,
-                        components: [
-                            {
-                                type: ComponentType.Button,
-                                style: ButtonStyle.Secondary,
-                                custom_id: `::upload:${doc.id}:${
-                                    anon == true
-                                        ? "a"
-                                        : anon == false
-                                        ? "i"
-                                        : ""
-                                }:${key}`,
-                                emoji: EDIT_DOCUMENT,
-                            },
-                        ],
-                    },
-                ],
-            };
-        } else if (sub == "delete") {
+        if (sub == "delete") {
             await cmd.deferReply({ ephemeral: true });
 
             const doc = await db("documents").findOne({
@@ -391,51 +308,6 @@ export async function execute(cmd) {
                     },
                 ],
             };
-        } else if (sub == "reveal") {
-            await cmd.deferReply({ ephemeral: true });
-
-            const doc = await db("documents").findOne({
-                id: cmd.options.getInteger("id"),
-            });
-
-            if (!doc) {
-                return {
-                    embeds: [
-                        {
-                            title: "**Document Not Found**",
-                            description: "No document was found with this ID.",
-                            color: Colors.Red,
-                        },
-                    ],
-                };
-            }
-
-            if (
-                doc.anon &&
-                doc.uploader != cmd.user.id &&
-                !(await api_is_observer(cmd.user.id))
-            ) {
-                return {
-                    embeds: [
-                        {
-                            title: "**Permission Denied**",
-                            description:
-                                "Only observers and the uploader may reveal the uploader of an anonymous document.",
-                            color: Colors.Red,
-                        },
-                    ],
-                };
-            }
-
-            return {
-                embeds: [
-                    {
-                        title: "**Document Uploader**",
-                        description: `This document was uploaded by <@${doc.uploader}>. This is not necessarily the author of the document itself.`,
-                        color: 0x2d3136,
-                    },
-                ],
-            };
         } else if (sub == "dump") {
             return {
                 files: [
@@ -452,11 +324,7 @@ export async function execute(cmd) {
                                             doc.description
                                         }\n\nUsers: ${doc.users.join(
                                             ", "
-                                        )}\nUploaded ${
-                                            doc.anon
-                                                ? "anonymously"
-                                                : `by ${doc.uploader}`
-                                        }.`
+                                        )}\nUploaded by ${doc.uploader}.`
                                 )
                                 .join("\n\n"),
                             "utf-8"
@@ -464,6 +332,80 @@ export async function execute(cmd) {
                     },
                 ],
                 ephemeral: true,
+            };
+        }
+    } else if (subgroup == "alt") {
+        await cmd.deferReply({ ephemeral: true });
+
+        if (!(await api_is_observer(cmd.user.id))) {
+            return {
+                embeds: [
+                    {
+                        title: "**Permission Denied**",
+                        description:
+                            "Only observers may edit this information.",
+                        color: Colors.Red,
+                    },
+                ],
+            };
+        }
+
+        const main = cmd.options.getUser("main").id;
+        const alt = cmd.options.getUser("alt").id;
+
+        if (sub == "link") {
+            if (
+                (await db("alts").countDocuments({
+                    $or: [{ main: alt }, { alt }],
+                })) > 0
+            ) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Already Linked**",
+                            description:
+                                "The provided alt account is already either an alt or a main of an alt account relationship.",
+                            color: Colors.Red,
+                        },
+                    ],
+                };
+            }
+
+            await db("alts").insertOne({ main, alt });
+
+            return {
+                embeds: [
+                    {
+                        title: "**Linked**",
+                        description: `<@${alt}> is now designated as the alt of <@${main}>.`,
+                        color: 0x2d3136,
+                    },
+                ],
+            };
+        } else if (sub == "unlink") {
+            if (!(await db("alts").findOne({ main, alt }))) {
+                return {
+                    embeds: [
+                        {
+                            title: "**Not Linked**",
+                            description:
+                                "The provided alt-main relationship does not exist.",
+                            color: Colors.Red,
+                        },
+                    ],
+                };
+            }
+
+            await db("alts").findOneAndDelete({ main, alt });
+
+            return {
+                embeds: [
+                    {
+                        title: "**Unlinked**",
+                        description: `<@${alt}> is no longer designated as the alt of <@${main}>.`,
+                        color: 0x2d3136,
+                    },
+                ],
             };
         }
     }

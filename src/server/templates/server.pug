@@ -1,0 +1,35 @@
+extends layout
+
+block header
+    b= server.name
+
+block main
+    if server_type == "api"
+        .row
+            .col.s12
+                b This server is in the TCN. 
+                | Its owner is 
+                a(href=`/users/${req.owner.id}`)= req.owner.tag
+                if req.advisor
+                    |  and its advisor is 
+                    a(href=`/users/${req.advisor.id}`)= req.advisor.tag
+                | .
+    if entry
+        if entry.body
+            .row
+                .col.s12
+                    p!= entry.body
+        if entry.faction
+            .row
+                .col.s12
+                    b Affiliation 
+                    = entry.faction
+        if entry.abbr
+            .row
+                .col.s12
+                    b Canonical Abbreviation 
+                    | This server's canonical abbreviation is #{entry.abbr}. It is <b>not</b> official or exclusive, but simply most commonly what but simply most commonly what is used to refer to this server and is understood to mean this server, at least within the TCN.
+    else
+        p This server does not have any additional information attached to it.
+    for doc of docs
+        +show(doc)

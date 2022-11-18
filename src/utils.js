@@ -23,3 +23,17 @@ export function english_list(list, separator = ", ", terminator = "and ") {
         .slice(0, list.length - 1)
         .join(separator)}${separator}${terminator}${list[list.length - 1]}`;
 }
+
+export function uniquify(list) {
+    const set = new Set();
+    const output = [];
+
+    for (const element of list) {
+        if (!set.has(element)) {
+            set.add(element);
+            output.push(element);
+        }
+    }
+
+    return output;
+}

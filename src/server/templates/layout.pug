@@ -4,15 +4,15 @@ doctype html
 html
     head
         meta(charset="utf-8")
-        meta(name="description", content="Akasha System Dashboard")
-        meta(name="keywords", content="akasha, tcn, teyvat, collective, network")
-        meta(name="author", content="hyper-neutrino")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(name="description" content="Akasha System Dashboard")
+        meta(name="keywords" content="akasha, tcn, teyvat, collective, network")
+        meta(name="author" content="hyper-neutrino")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
 
-        meta(property="og:title", content="Akasha System | Dashboard")
-        meta(property="og:description", content="Web Edition of the Akasha Terminal.")
-        meta(property="og:url", content="https://akasha.hyper-neutrino.xyz/")
-        meta(name="theme-color", data-react-helmet="true", content="#2d3136")
+        meta(property="og:title" content="Akasha System | Dashboard")
+        meta(property="og:description" content="Web Edition of the Akasha Terminal.")
+        meta(property="og:url" content="https://akasha.hyper-neutrino.xyz/")
+        meta(name="theme-color" data-react-helmet="true" content="#2d3136")
 
         +import-css("/static/styles/stylesheet.css" + version)
 
@@ -40,8 +40,14 @@ html
                         .subtext
                             | Welcome, 
                             = user.username
+                        +link("/", "home", "Home")
                         +link("/logout/", "logout", "Log Out")
             .container
+                +link("/upload/", "upload", "Upload A Document")
+                +link("/servers/", "hub", "Servers")
+                +link("#!", "account_circle", "User Info", undefined, "user_by_id();")
+                +link("/docs/", "article", "Documents")
+                br
                 br
                 block main
             block extras

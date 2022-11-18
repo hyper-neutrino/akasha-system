@@ -1,11 +1,34 @@
 mixin import-css(file)
     link(rel="stylesheet", type="text/css", href=file)
 
-mixin link(url, icon, label)
-    a.waves-effect.waves-dark.btn.grey.darken-3(href=url)
+mixin link(url, icon, label, target="", onclick="")
+    a.waves-effect.waves-dark.btn.grey.darken-3(href=url, target=target, onclick=onclick, style="margin-right: 5px; margin-bottom: 5px;")
         i.left.material-icons= icon
         != label
 
 mixin submit(icon, label)
     button.btn.waves-effect.waves-dark#submit(type="submit", name="submit")!= label
         i.left.material-icons= icon
+
+mixin show(doc)
+    .doc.card.blue-grey.darken-4(data-id=doc.id)
+        .card-content.white-text
+            h6= doc.title
+            b.grey-text
+                | Uploaded by 
+                a(href=`/users/${doc.uploader.id}`)= doc.uploader.tag
+            br
+            b.grey-text
+                if doc.authors || doc.alt_authors
+                    | Authored by !{english_list([...doc.authors.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.alt_authors.map(escape)])}
+                else
+                    | Anonymously Authored
+            if doc.users || doc.servers || doc.alt_related
+                br
+                b.grey-text
+                    | Regarding #{english_list([...doc.users.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.servers.map(server => `<a href='/servers/${server.id}'>${escape(server.name)}</a>`), ...doc.alt_related])}
+            br
+            br
+            p= doc.description
+        .card-action
+            +link(`/docs/${doc.id}`, "open_in_new", "View", "_blank")

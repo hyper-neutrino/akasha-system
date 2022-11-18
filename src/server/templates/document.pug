@@ -1,0 +1,47 @@
+extends layout
+
+block header
+    b= doc.title
+
+block main
+    .row
+        .col.s12
+            h5 Document ##{doc.id} 
+                span.grey-text (uploaded by #{doc.uploader.tag})
+    .row
+        .col.s12
+            if doc.authors || doc.alt_authors
+                p Authored by !{english_list([...doc.authors.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.alt_authors.map(escape)])}.
+            else
+                p No authors listed.
+    .row
+        .col.s12
+            a(href=doc.link, target="_blank")= doc.link
+    .row
+        .col.s12
+            p= doc.description
+    if doc.users
+        .row
+            .col.s12
+                h6 Related Users
+                ul.browser-default
+                    for user of doc.users
+                        li: a(href=`/users/${user.id}`)= user.tag
+    if doc.servers
+        .row
+            .col.s12
+                h6 Related Servers
+                ul.browser-default
+                    for server of doc.servers
+                        li: a(href=`/servers/${server.id}`)= server.name
+    if doc.alt_related
+        .row
+            .col.s12
+                h6 Other Related Parties
+                ul.browser-default
+                    for party of doc.alt_related
+                        li= party
+    if can_edit
+        .row
+            .col.s12
+                +link(`/edit/${doc.id}`, "edit", "Edit")

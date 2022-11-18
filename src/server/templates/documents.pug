@@ -1,0 +1,38 @@
+extends layout
+
+block header
+    b Document List
+
+block dependencies
+    script const docs = !{JSON.stringify(docs)};
+    script(src="/static/scripts/documents.js", defer)
+
+block main
+    ul.collapsible#filters(style="border: none")
+        li
+            .collapsible-header.blue-grey.darken-4(style="border: none")
+                i.material-icons filter_alt
+                | Filters
+            .collapsible-body.blue-grey.darken-4(style="border: none")
+                .row
+                    .col.s12.input-field
+                        i.material-icons.prefix search
+                        input.white-text#search()
+                .row
+                    .col.s12.input-field
+                        textarea.materialize-textarea.white-text#authors(placeholder="one per line, user ID or party name")
+                        label.active Authors
+                .row
+                    .col.s12.input-field
+                        textarea.materialize-textarea.white-text#related(placeholder="one per line, user/server ID or party name")
+                        label.active Related Parties
+                .row
+                    .col.s12.input-field
+                        textarea.materialize-textarea.white-text#uploader(placeholder="whitespace-separated user IDs, documents uploaded by any of these users will appear")
+                        label.active Uploader
+                .row
+                    .col.s12
+                        span#results Returned X result(s).
+    br
+    for doc of docs
+        +show(doc)

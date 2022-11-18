@@ -1,0 +1,19 @@
+extends layout
+
+block header
+    b Server Listing
+
+block dependencies
+    script(src="/static/scripts/servers.js")
+
+block main
+    +link("#!", "place", "Enter ID directly", undefined, "by_id();")
+    p
+        ul.browser-default
+            for server of tcn.sort((a, b) => a.name.localeCompare(b.name))
+                li
+                    a(href=`/servers/${server.id}`) #{server.name} 
+                    span.grey-text (TCN Server)
+            for server of others.sort((a, b) => a.name.localeCompare(b.name))
+                li
+                    a(href=`/servers/${server.id}`) #{server.name}

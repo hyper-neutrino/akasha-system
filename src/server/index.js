@@ -1,14 +1,24 @@
 import session from "cookie-session";
+import escape from "escape-html";
 import express from "express";
 import { res as resolve } from "file-ez";
-import http, { Server } from "http";
+import http from "http";
 import multer from "multer";
 import fetch from "node-fetch";
 import pug from "pug";
 import client from "../client.js";
 import config from "../config.js";
 import db from "../db.js";
+import {
+    api_get_server,
+    api_get_servers,
+    api_get_user,
+    api_get_users,
+    api_is_council_member,
+    api_is_observer,
+} from "../lib/api.js";
 import autoinc from "../lib/autoinc.js";
+import { english_list, uniquify } from "../utils.js";
 
 const version = "?v=" + Math.floor(Math.random() * 1000000).toString();
 
@@ -32,6 +42,58 @@ function save(req, data) {
     req.session.refresh_token = data.refresh_token;
 }
 
+server.param("doc", async (req, res, next, doc) => {
+    req.doc = await db("documents").findOne({ id: parseInt(doc) });
+
+    if (!req.doc) {
+        return res.status(404).send(
+            req.render("error.pug", {
+                title: "Document ID Invalid",
+                header: "Document Not Found",
+                description: `No document was found with ID <code>${escape(
+                    doc
+                )}</code>. <a href='/'>Return home</a>.`,
+            })
+        );
+    }
+
+    next();
+});
+
+server.param("server", async (req, _res, next, server) => {
+    try {
+        req.server = await api_get_server(server);
+        req.owner =
+            req.server.owner && (await client.users.fetch(req.server.owner));
+        req.advisor =
+            req.server.advisor &&
+            (await client.users.fetch(req.server.advisor));
+        req.server_type = "api";
+    } catch {
+        try {
+            req.server = req.servers.filter((x) => x.id == server)[0];
+            if (req.server) req.server_type = "oauth";
+        } catch {}
+
+        if (!req.server) {
+            req.server = { name: `[${id}]`, id: server };
+            req.server_type = "id";
+        }
+    }
+
+    next();
+});
+
+server.param("user", async (req, _res, next, user) => {
+    try {
+        req.user = await client.users.fetch(user);
+    } catch {
+        req.user = { tag: `[${user}]`, id: user };
+    }
+
+    next();
+});
+
 server.use(async function (req, res, next) {
     req.session.flashes ??= [];
 
@@ -45,6 +107,9 @@ server.use(async function (req, res, next) {
         req.session.flashes = undefined;
         options.version = version;
         options.req = req;
+
+        options.english_list = english_list;
+        options.escape = escape;
 
         if (!req.session.state) {
             req.session.state = "";
@@ -175,8 +240,38 @@ server.use(async function (req, res, next) {
     next();
 });
 
-function require_login(req, res, next) {
+async function require_login(req, res, next) {
     if (!req.session.user) return res.send(req.render("need-login.pug"));
+
+    if (!(await api_is_council_member(req.session.user.id))) {
+        return res.send(
+            req.render("error.pug", {
+                title: "Access Forbidden",
+                header: "Permission Denied",
+                description:
+                    "You do not have the required credentials (you must be a TCN council member to access the Akasha System). <a href='/'>Log in on another account</a>.",
+            })
+        );
+    }
+
+    next();
+}
+
+async function require_edit(req, res, next) {
+    if (
+        req.session.user.id != req.doc.uploader &&
+        !(await api_is_observer(req.session.user.id))
+    ) {
+        return res.send(
+            req.render("error.pug", {
+                title: "Access Forbidden",
+                header: "Permission Denied",
+                description:
+                    "You must be the uploader of the document or an observer to edit this document.",
+            })
+        );
+    }
+
     next();
 }
 
@@ -196,8 +291,27 @@ server.get("/logout/", (req, res) => {
     res.redirect(303, "/");
 });
 
+function unparse(doc) {
+    return {
+        authors: doc.authors.join(" "),
+        alt_authors: doc.alt_authors.join("\n"),
+        users: doc.users.join(" "),
+        servers: doc.servers.join(" "),
+        alt_related: doc.alt_related.join("\n"),
+        title: doc.title,
+        description: doc.description,
+        link: doc.link,
+    };
+}
+
 server.get("/upload/", require_login, (req, res) => {
     res.send(req.render("upload.pug", { upload: true, doc: {} }));
+});
+
+server.get("/edit/:doc", require_login, require_edit, async (req, res) => {
+    res.send(
+        req.render("upload.pug", { upload: false, doc: unparse(req.doc) })
+    );
 });
 
 const IDS_PATTERN = /^\s*(\d{17,20}\s+)*\d{17,20}?\s*$/;
@@ -205,14 +319,16 @@ const IDS_PATTERN = /^\s*(\d{17,20}\s+)*\d{17,20}?\s*$/;
 function to_list(ids) {
     ids = ids.trim();
     if (!ids) return [];
-    return ids.split(/\s+/);
+    return uniquify(ids.split(/\s+/));
 }
 
 function by_lines(list) {
-    return list
-        .split("\n")
-        .map((x) => x.trim())
-        .filter((x) => x);
+    return uniquify(
+        list
+            .split("\n")
+            .map((x) => x.trim())
+            .filter((x) => x)
+    );
 }
 
 async function parse_upload(body) {
@@ -287,16 +403,195 @@ server.post("/upload/", require_login, async (req, res) => {
         doc = await parse_upload(req.body);
     } catch (e) {
         req.flash(e, "ERROR");
+        return res.send(
+            req.render("upload.pug", { upload: true, doc: req.body })
+        );
     }
 
     doc.uploader = req.session.user.id;
     doc.id = await autoinc("documents");
+    doc.uploaded = new Date();
+    doc.updated = new Date();
 
-    await db("documents").insertOne(doc);
+    db("documents").insertOne(doc);
 
     req.flash("Upload complete.", "SUCCESS");
 
-    req.redirect(303, `/docs/${doc.id}`);
+    res.redirect(303, `/docs/${doc.id}`);
+});
+
+server.post("/edit/:doc", require_login, require_edit, async (req, res) => {
+    let doc;
+
+    try {
+        doc = await parse_upload(req.body);
+    } catch (e) {
+        req.flash(e, "ERROR");
+        return res.send(
+            req.render("upload.pug", { upload: false, doc: req.body })
+        );
+    }
+
+    doc.updated = new Date();
+
+    db("documents").findOneAndUpdate({ id: req.doc.id }, { $set: doc });
+
+    req.flash("Edit complete.", "SUCCESS");
+
+    res.redirect(303, `/docs/${doc.id}`);
+});
+
+async function load(doc) {
+    doc.uploader = await userfetch(doc.uploader);
+
+    doc.authors = await Promise.all(doc.authors.map(userfetch));
+    doc.users = await Promise.all(doc.users.map(userfetch));
+    doc.servers = await Promise.all(doc.servers.map(serverfetch));
+
+    return doc;
+}
+
+server.get("/docs/", require_login, async (req, res) => {
+    const docs = await Promise.all(
+        (await db("documents").find({}).toArray()).map(load)
+    );
+
+    res.send(req.render("documents.pug", { docs }));
+});
+
+async function userfetch(id) {
+    try {
+        return await client.users.fetch(id);
+    } catch {
+        return { tag: `[user: ${id}]`, id, fake: true };
+    }
+}
+
+async function serverfetch(id) {
+    try {
+        return await api_get_server(id);
+    } catch {
+        return { name: `[server: ${id}]`, id, fake: true };
+    }
+}
+
+server.get("/docs/:doc", require_login, async (req, res) => {
+    const doc = await load(req.doc);
+
+    res.send(
+        req.render("document.pug", {
+            doc,
+            can_edit:
+                req.session.user.id == doc.uploader.id ||
+                (await api_is_observer(req.session.user.id)),
+        })
+    );
+});
+
+server.get("/servers/", require_login, async (req, res) => {
+    const tcn = await api_get_servers();
+    const ids = new Set(tcn.map((x) => x.id));
+
+    res.send(
+        req.render("servers.pug", {
+            tcn,
+            others: req.servers.filter((x) => !ids.has(x.id)),
+        })
+    );
+});
+
+server.get("/servers/:server", require_login, async (req, res) => {
+    res.send(
+        req.render("server.pug", {
+            server: req.server,
+            server_type: req.server_type,
+            entry: await db("servers").findOne({ id: req.server.id }),
+            docs: await Promise.all(
+                (
+                    await db("documents")
+                        .find({ servers: { $in: [req.server.id] } })
+                        .toArray()
+                ).map(load)
+            ),
+        })
+    );
+});
+
+function link(guild) {
+    return `<a href='/servers/${guild.id}'><b>${escape(guild.name)}</b></a>`;
+}
+
+server.get("/users/:user", require_login, async (req, res) => {
+    let body = "";
+
+    const entry = await db("users").findOne({ user: req.user.id });
+
+    if (req.user.bot) {
+        if (entry) {
+            body = `<h6>Bot Info <span class='grey-text'>for ${
+                req.user.tag
+            }</h6><br />${escape(entry.body).replace("\n", "<br />")}`;
+        } else {
+            body =
+                "This user is a bot and is not recognized by the Akasha System.";
+        }
+    } else {
+        let api_user;
+
+        try {
+            api_user = await api_get_user(req.user.id);
+        } catch {}
+
+        if (!api_user) {
+            body += "(This user could not be found in the TCN API.)\n\n";
+        } else {
+            if (api_user.roles.includes("observer")) {
+                body += "This user is a TCN observer.\n\n";
+            }
+
+            const staffs = [];
+
+            for (const guild of await api_get_servers()) {
+                if (guild.owner == req.user.id) {
+                    body += `Server Owner of ${link(guild)}. `;
+                } else if (guild.advisor == req.user.id) {
+                    body += `Council Advisor of ${link(guild)}. `;
+                } else if (api_user.guilds?.includes(guild.id)) {
+                    staffs.push(link(guild));
+                }
+            }
+
+            if (staffs.length) {
+                staffs.sort();
+                body += `${body ? "Also s" : "S"}taff in ${english_list(
+                    staffs
+                )}.`;
+            }
+
+            if (entry) {
+                body += `<br /><br />${escape(entry.body).replace(
+                    "\n",
+                    "<br />"
+                )}`;
+            }
+        }
+    }
+
+    res.send(
+        req.render("user.pug", {
+            body,
+            main: await userfetch(
+                (
+                    await db("alts").findOne({ alt: req.user.id })
+                )?.main
+            ),
+            alts: await Promise.all(
+                (
+                    await db("alts").find({ main: req.user.id }).toArray()
+                ).map((entry) => userfetch(entry.alt))
+            ),
+        })
+    );
 });
 
 http.createServer(server).listen(config.port);

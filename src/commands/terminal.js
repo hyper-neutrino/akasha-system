@@ -6,6 +6,7 @@ import {
     DISCORD,
     DOCUMENT,
     HUB,
+    PARTNER_LIST,
     QUICK_GUIDE,
     TCN_DIRECTORY,
     TOUR,
@@ -48,6 +49,13 @@ export async function execute(cmd) {
                         emoji: DASHBOARD,
                         label: "Dashboard",
                         url: config.domain,
+                    },
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        emoji: PARTNER_LIST,
+                        label: "Document List",
+                        url: `${config.domain}/docs/`,
                     },
                     {
                         type: ComponentType.Button,
