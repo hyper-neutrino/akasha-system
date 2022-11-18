@@ -1,4 +1,5 @@
 import session from "cookie-session";
+import { ButtonStyle, ComponentType } from "discord.js";
 import escape from "escape-html";
 import express from "express";
 import { res as resolve } from "file-ez";
@@ -420,12 +421,25 @@ server.post("/upload/", require_login, async (req, res) => {
     (async () => {
         try {
             client.channels.cache.get(config.business).send({
-                content: `A document was just uploaded by <@${doc.uploader}>. Check it out at ${config.domain}/docs/${doc.id}.\n\n`,
+                content: `A document was just uploaded by <@${doc.uploader}>. Check it out at ${doc.link}.`,
                 embeds: [
                     {
                         title: doc.title,
                         description: doc.description,
                         color: 0x2d3136,
+                    },
+                ],
+                components: [
+                    {
+                        type: ComponentType.ActionRow,
+                        components: [
+                            {
+                                type: ComponentType.Button,
+                                style: ButtonStyle.Link,
+                                label: "View On Dashboard",
+                                url: `${config.domain}/docs/${doc.id}`,
+                            },
+                        ],
                     },
                 ],
             });
