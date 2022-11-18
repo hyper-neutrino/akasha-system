@@ -1,4 +1,5 @@
 import { ButtonStyle, ComponentType } from "discord.js";
+import config from "../config.js";
 import db from "../db.js";
 import { english_list } from "../utils.js";
 import { api_get_servers, api_get_user, api_is_council_member } from "./api.js";
@@ -115,6 +116,12 @@ export default async function (ctx, user) {
             {
                 type: ComponentType.ActionRow,
                 components: [
+                    {
+                        type: ComponentType.Button,
+                        style: ButtonStyle.Link,
+                        label: "View On Dashboard",
+                        url: `${config.domain}/users/${user.id}`,
+                    },
                     {
                         type: ComponentType.Button,
                         style: ButtonStyle.Secondary,
