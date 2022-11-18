@@ -417,6 +417,21 @@ server.post("/upload/", require_login, async (req, res) => {
 
     req.flash("Upload complete.", "SUCCESS");
 
+    (async () => {
+        try {
+            client.channels.cache.get(config.business).send({
+                content: `A document was just uploaded by <@${doc.uploader}>. Check it out at ${config.domain}/docs/${doc.id}.\n\n`,
+                embeds: [
+                    {
+                        title: doc.title,
+                        description: doc.description,
+                        color: 0x2d3136,
+                    },
+                ],
+            });
+        } catch {}
+    })();
+
     res.redirect(303, `/docs/${doc.id}`);
 });
 
