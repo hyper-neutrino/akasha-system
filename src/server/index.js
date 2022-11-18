@@ -314,7 +314,7 @@ server.get("/edit/:doc", require_login, require_edit, async (req, res) => {
     );
 });
 
-const IDS_PATTERN = /^\s*(\d{17,20}\s+)*\d{17,20}?\s*$/;
+const IDS_PATTERN = /^\s*(\d{17,20}\s+)*(\d{17,20})?\s*$/;
 
 function to_list(ids) {
     ids = ids.trim();
