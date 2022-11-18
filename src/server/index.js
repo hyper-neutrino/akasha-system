@@ -467,7 +467,7 @@ server.post("/edit/:doc", require_login, require_edit, async (req, res) => {
 
     req.flash("Edit complete.", "SUCCESS");
 
-    res.redirect(303, `/docs/${doc.id}`);
+    res.redirect(303, `/docs/${req.doc.id}`);
 });
 
 async function load(doc) {
