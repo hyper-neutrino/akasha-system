@@ -26,7 +26,7 @@ mixin show(doc)
             if doc.users || doc.servers || doc.alt_related
                 br
                 b.grey-text
-                    | Regarding #{english_list([...doc.users.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.servers.map(server => `<a href='/servers/${server.id}'>${escape(server.name)}</a>`), ...doc.alt_related])}
+                    | Regarding !{english_list([...doc.users.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.servers.map(server => `<a href='/servers/${server.id}'>${escape(server.name)}</a>`), ...doc.alt_related])}
             br
             br
             p= doc.description

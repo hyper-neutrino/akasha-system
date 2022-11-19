@@ -470,19 +470,21 @@ server.post("/edit/:doc", require_login, require_edit, async (req, res) => {
     res.redirect(303, `/docs/${req.doc.id}`);
 });
 
-async function load(doc) {
-    doc.uploader = await userfetch(doc.uploader);
+function load(req) {
+    return async (doc) => {
+        doc.uploader = await userfetch(doc.uploader);
 
-    doc.authors = await Promise.all(doc.authors.map(userfetch));
-    doc.users = await Promise.all(doc.users.map(userfetch));
-    doc.servers = await Promise.all(doc.servers.map(serverfetch));
+        doc.authors = await Promise.all(doc.authors.map(userfetch));
+        doc.users = await Promise.all(doc.users.map(userfetch));
+        doc.servers = await Promise.all(doc.servers.map(serverfetch(req)));
 
-    return doc;
+        return doc;
+    };
 }
 
 server.get("/docs/", require_login, async (req, res) => {
     const docs = await Promise.all(
-        (await db("documents").find({}).toArray()).map(load)
+        (await db("documents").find({}).toArray()).map(load(req))
     );
 
     res.send(req.render("documents.pug", { docs }));
@@ -496,16 +498,24 @@ async function userfetch(id) {
     }
 }
 
-async function serverfetch(id) {
-    try {
-        return await api_get_server(id);
-    } catch {
-        return { name: `[server: ${id}]`, id, fake: true };
-    }
+function serverfetch(req) {
+    return async (id) => {
+        try {
+            return await api_get_server(id);
+        } catch {
+            return (
+                req.servers.filter((x) => x.id == id)[0] || {
+                    name: `[server: ${id}]`,
+                    id,
+                    fake: true,
+                }
+            );
+        }
+    };
 }
 
 server.get("/docs/:doc", require_login, async (req, res) => {
-    const doc = await load(req.doc);
+    const doc = await load(req)(req.doc);
 
     res.send(
         req.render("document.pug", {
@@ -540,7 +550,7 @@ server.get("/servers/:server", require_login, async (req, res) => {
                     await db("documents")
                         .find({ servers: { $in: [req.server.id] } })
                         .toArray()
-                ).map(load)
+                ).map(load(req))
             ),
         })
     );
