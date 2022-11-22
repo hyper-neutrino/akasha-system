@@ -63,6 +63,7 @@ client.once("ready", async () => {
 });
 
 client.on("guildMemberAdd", async (member) => {
+    if (member.guild != config.guild) return;
     const channel = await client.channels.fetch(config.welcome);
 
     if (member.user.bot) {
