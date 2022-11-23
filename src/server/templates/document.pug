@@ -10,7 +10,7 @@ block main
                 span.grey-text (uploaded by #{doc.uploader.tag})
     .row
         .col.s12
-            if doc.authors || doc.alt_authors
+            if doc.authors.length || doc.alt_authors.length
                 p Authored by !{english_list([...doc.authors.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.alt_authors.map(escape)])}.
             else
                 p No authors listed.
@@ -20,21 +20,21 @@ block main
     .row
         .col.s12
             p= doc.description
-    if doc.users
+    if doc.users.length
         .row
             .col.s12
                 h6 Related Users
                 ul.browser-default
                     for user of doc.users
                         li: a(href=`/users/${user.id}`)= user.tag
-    if doc.servers
+    if doc.servers.length
         .row
             .col.s12
                 h6 Related Servers
                 ul.browser-default
                     for server of doc.servers
                         li: a(href=`/servers/${server.id}`)= server.name
-    if doc.alt_related
+    if doc.alt_related.length
         .row
             .col.s12
                 h6 Other Related Parties

@@ -19,11 +19,11 @@ mixin show(doc)
                 a(href=`/users/${doc.uploader.id}`)= doc.uploader.tag
             br
             b.grey-text
-                if doc.authors || doc.alt_authors
+                if doc.authors.length || doc.alt_authors.length
                     | Authored by !{english_list([...doc.authors.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.alt_authors.map(escape)])}
                 else
                     | Anonymously Authored
-            if doc.users || doc.servers || doc.alt_related
+            if doc.users.length || doc.servers.length || doc.alt_related.length
                 br
                 b.grey-text
                     | Regarding !{english_list([...doc.users.map(user => `<a href='/users/${user.id}'>${escape(user.tag)}</a>`), ...doc.servers.map(server => `<a href='/servers/${server.id}'>${escape(server.name)}</a>`), ...doc.alt_related])}
