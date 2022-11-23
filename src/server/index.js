@@ -305,8 +305,14 @@ function unparse(doc) {
     };
 }
 
-server.get("/upload/", require_login, (req, res) => {
-    res.send(req.render("upload.pug", { upload: true, doc: {} }));
+server.get("/upload/", require_login, async (req, res) => {
+    res.send(
+        req.render("upload.pug", {
+            upload: true,
+            doc: {},
+            observer: await api_is_observer(req.session.user.id),
+        })
+    );
 });
 
 server.get("/edit/:doc", require_login, require_edit, async (req, res) => {
@@ -418,33 +424,38 @@ server.post("/upload/", require_login, async (req, res) => {
 
     req.flash("Upload complete.", "SUCCESS");
 
-    (async () => {
-        try {
-            client.channels.cache.get(config.business).send({
-                content: `A document was just uploaded by <@${doc.uploader}>. Check it out at ${doc.link}.`,
-                embeds: [
-                    {
-                        title: doc.title,
-                        description: doc.description,
-                        color: 0x2d3136,
-                    },
-                ],
-                components: [
-                    {
-                        type: ComponentType.ActionRow,
-                        components: [
-                            {
-                                type: ComponentType.Button,
-                                style: ButtonStyle.Link,
-                                label: "View On Dashboard",
-                                url: `${config.domain}/docs/${doc.id}`,
-                            },
-                        ],
-                    },
-                ],
-            });
-        } catch {}
-    })();
+    if (
+        !Object.keys(req.body).includes("quiet") ||
+        !(await api_is_observer(doc.uploader))
+    ) {
+        (async () => {
+            try {
+                client.channels.cache.get(config.business).send({
+                    content: `A document was just uploaded by <@${doc.uploader}>. Check it out at ${doc.link}.`,
+                    embeds: [
+                        {
+                            title: doc.title,
+                            description: doc.description,
+                            color: 0x2d3136,
+                        },
+                    ],
+                    components: [
+                        {
+                            type: ComponentType.ActionRow,
+                            components: [
+                                {
+                                    type: ComponentType.Button,
+                                    style: ButtonStyle.Link,
+                                    label: "View On Dashboard",
+                                    url: `${config.domain}/docs/${doc.id}`,
+                                },
+                            ],
+                        },
+                    ],
+                });
+            } catch {}
+        })();
+    }
 
     res.redirect(303, `/docs/${doc.id}`);
 });

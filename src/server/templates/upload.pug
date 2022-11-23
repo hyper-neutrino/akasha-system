@@ -40,4 +40,7 @@ block main
         .row
             .col.s12
                 +submit(upload ? "upload" : "save", upload ? "Upload" : "Save")
+                if upload && observer
+                    | 
+                    +submit("upload", "Upload Quietly", "quiet")
                 p This may take a while if you provided a lot of users; please be patient.
