@@ -411,7 +411,11 @@ server.post("/upload/", require_login, async (req, res) => {
     } catch (e) {
         req.flash(e, "ERROR");
         return res.send(
-            req.render("upload.pug", { upload: true, doc: req.body })
+            req.render("upload.pug", {
+                upload: true,
+                doc: req.body,
+                observer: await api_is_observer(req.session.user.id),
+            })
         );
     }
 
