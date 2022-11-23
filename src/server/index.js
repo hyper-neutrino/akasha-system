@@ -644,6 +644,13 @@ server.get("/users/:user", require_login, async (req, res) => {
                     await db("alts").find({ main: req.user.id }).toArray()
                 ).map((entry) => userfetch(entry.alt))
             ),
+            docs: await Promise.all(
+                (
+                    await db("documents")
+                        .find({ users: { $in: [req.user.id] } })
+                        .toArray()
+                ).map(load(req))
+            ),
         })
     );
 });

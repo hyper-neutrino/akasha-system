@@ -7,8 +7,14 @@ block main
     p!= body
     br
     if main && !main.fake
-        p This account has been marked as an alt account of 
-            a(href=`/users/${main.id}`)= main.tag
-            | .
+        .row
+            .col.s12
+                p This account has been marked as an alt account of 
+                    a(href=`/users/${main.id}`)= main.tag
+                    | .
     if alts && alts.some(alt => !alt.fake)
-        p This account has the following alt accounts: !{english_list(alt.filter(alt => !alt.fake).map(alt => `<a href='/users/${alt.id}'>${escape(alt.tag)}</a>`))}
+        .row
+            .col.s12
+                p This account has the following alt accounts: !{english_list(alt.filter(alt => !alt.fake).map(alt => `<a href='/users/${alt.id}'>${escape(alt.tag)}</a>`))}
+    for doc of docs
+        +show(doc)
