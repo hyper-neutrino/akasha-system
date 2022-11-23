@@ -14,7 +14,7 @@ for (const doc of docs) {
         ...doc.users.filter((x) => !x.fake).map((x) => x.tag.toLowerCase()),
         ...doc.servers
             .filter((x) => !x.fake)
-            .map((x) => [x.name.toLowerCase(), x.character.toLowerCase()])
+            .map((x) => [x.name.toLowerCase(), ...(x.character ? [x.character.toLowerCase()] : []))
             .flat(),
         ...doc.alt_related.map((x) => x.toLowerCase()),
     ];
