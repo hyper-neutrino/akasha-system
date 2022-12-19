@@ -67,15 +67,15 @@ client.on("guildMemberAdd", async (member) => {
     const channel = await client.channels.fetch(config.welcome);
 
     if (member.user.bot) {
-        const entry = await db("bots").findOne({ user: member.id });
+        const entry = await db("users").findOne({ user: member.id });
 
         if (entry) {
             await channel.send(
-                `Hello, ${member}. You are already recognized by the Akasha System:\n\n${entry.body}\n\nObservers - run **/akasha bot edit** to edit this information.`
+                `Hello, ${member}. You are already recognized by the Akasha System:\n\n${entry.body}\n\nObservers - run **/akasha user edit** to edit this information.`
             );
         } else {
             await channel.send(
-                `Hello, ${member}. You are not recognized by the Akasha System yet. Observers - run **/akasha bot edit** to provide public information about the bot if needed.`
+                `Hello, ${member}. You are not recognized by the Akasha System yet. Observers - run **/akasha user edit** to provide public information about the bot if needed.`
             );
         }
     } else {
