@@ -71,7 +71,7 @@ const pages = [
         },
         title: "**Full Quick Guide**",
         description:
-            "To view the full quick guide, including more information on each item, links to other information documents, and a list of (fully optional) features and bots that are available to you as a TCN member, visit [this document](https://docs.google.com/document/d/1PFOOROZMU0k2saUW0Q6Ffq5YgppTIQ4s3JIrTJU4gXA). We hope that this has streamlined the setup process a bit; please let us know if you have any more questions or need help setting up a server, and the observers would be happy to assist you with that.",
+            "To view the full quick guide, including more information on each item, links to other information documents, and a list of (fully optional) features and bots that are available to you as a TCN member, visit [this page](https://info.teyvatcollective.network/quickstart). We hope that this has streamlined the setup process a bit; please let us know if you have any more questions or need help setting up a server, and the observers would be happy to assist you with that.",
     },
 ];
 
