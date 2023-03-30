@@ -115,13 +115,6 @@ export async function execute(cmd) {
                                 description:
                                     "add a document to the Akasha System",
                             },
-                            {
-                                label: "Discord Help",
-                                value: "discord",
-                                emoji: DISCORD,
-                                description:
-                                    "need technical help for Discord (server setup, etc.)?",
-                            },
                         ],
                     },
                 ],

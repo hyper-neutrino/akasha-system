@@ -4,8 +4,6 @@ import qg from "../lib/quick-guide.js";
 import { api_get_observers } from "../lib/api.js";
 import { english_list } from "../utils.js";
 import { ButtonStyle, ComponentType, TextInputStyle } from "discord.js";
-import { UPLOAD } from "../lib/emoji.js";
-import { home } from "../lib/discord_help.js";
 import config from "../config.js";
 
 export default async function (cmd) {
@@ -124,10 +122,6 @@ export default async function (cmd) {
                         ],
                     },
                 ];
-
-                break;
-            case "discord":
-                data = home;
 
                 break;
             default:
